@@ -1,0 +1,42 @@
+local function parse(theObject)
+  local gmNotes = theObject.getGMNotes()
+  if gmNotes == nil or gmNotes == '' then
+    return nil
+  end
+  local status, parsed = pcall(JSON.decode, gmNotes)
+  if status then
+    return parsed
+  end
+  return nil
+end
+
+local function matchesFilter(info, filter)
+  for k, v in pairs(filter) do
+    if info[k] == nil or info[k] ~= v then
+      return false
+    end
+  end
+  return true
+end
+
+local function getObjectsFromZone(zone_GUID, filter)
+  local zoneObjects = getObjectFromGUID(zone_GUID).getObjects()
+  if filter == nil then
+    return zoneObjects
+  end
+  local filtered = {}
+  for i, zoneObject in ipairs(zoneObjects) do
+    local info = parse(zoneObject)
+    if info ~= nil then
+      if matchesFilter(info, filter) then
+        table.insert(filtered, zoneObject)
+      end
+    end
+  end
+  return filtered
+end
+
+gmtools = {
+  parse = parse,
+  getObjectsFromZone = getObjectsFromZone
+}
