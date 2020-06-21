@@ -1,4 +1,15 @@
-local function parse(theObject)
+gmtools = {}
+
+local function matchesFilter(info, filter)
+  for k, v in pairs(filter) do
+    if info[k] == nil or info[k] ~= v then
+      return false
+    end
+  end
+  return true
+end
+
+function gmtools.parse(theObject)
   local gmNotes = theObject.getGMNotes()
   if gmNotes == nil or gmNotes == '' then
     return nil
@@ -10,23 +21,14 @@ local function parse(theObject)
   return nil
 end
 
-local function matchesFilter(info, filter)
-  for k, v in pairs(filter) do
-    if info[k] == nil or info[k] ~= v then
-      return false
-    end
-  end
-  return true
-end
-
-local function getObjectsFromZone(zone_GUID, filter)
+function gmtools.getObjectsFromZone(zone_GUID, filter)
   local zoneObjects = getObjectFromGUID(zone_GUID).getObjects()
   if filter == nil then
     return zoneObjects
   end
   local filtered = {}
   for i, zoneObject in ipairs(zoneObjects) do
-    local info = parse(zoneObject)
+    local info = gmtools.parse(zoneObject)
     if info ~= nil then
       if matchesFilter(info, filter) then
         table.insert(filtered, zoneObject)
@@ -35,8 +37,3 @@ local function getObjectsFromZone(zone_GUID, filter)
   end
   return filtered
 end
-
-gmtools = {
-  parse = parse,
-  getObjectsFromZone = getObjectsFromZone
-}
