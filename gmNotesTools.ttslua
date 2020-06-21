@@ -9,8 +9,7 @@ local function matchesFilter(info, filter)
   return true
 end
 
-function gmtools.parse(theObject)
-  local gmNotes = theObject.getGMNotes()
+function gmtools.parseGmNotes(gmNotes)
   if gmNotes == nil or gmNotes == '' then
     return nil
   end
@@ -19,6 +18,11 @@ function gmtools.parse(theObject)
     return parsed
   end
   return nil
+end
+
+function gmtools.parse(theObject)
+  local gmNotes = theObject.getGMNotes()
+  return gmtools.parseGmNotes(gmNotes)
 end
 
 function gmtools.getObjectsFromZone(zone_GUID, filter)
