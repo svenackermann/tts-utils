@@ -41,3 +41,17 @@ function gmtools.getObjectsFromZone(zone_GUID, filter)
   end
   return filtered
 end
+
+function gmtools.countStackableObjectsInZone(zone_GUID, filter)
+  local objects = gmtools.getObjectsFromZone(zone_GUID, filter)
+  local count = 0
+  for _, obj in ipairs(objects) do
+    local quantity = obj.getQuantity()
+    if quantity < 0 then
+      -- not a stack
+      quantity = 1
+    end
+    count = count + quantity
+  end
+  return count
+end
