@@ -42,6 +42,10 @@ function gmtools.getObjectsFromZone(zone_GUID, filter)
   return filtered
 end
 
+function gmtools.getObjectsByType(zone_GUID, type)
+  return gmtools.getObjectsFromZone(zone_GUID, {type = type})
+end
+
 function gmtools.countStackableObjectsInZone(zone_GUID, filter)
   local objects = gmtools.getObjectsFromZone(zone_GUID, filter)
   local count = 0
