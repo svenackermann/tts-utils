@@ -1,0 +1,5 @@
+<VerticalLayout id="languageSelector" color="White" visibility="Admin" active="false">
+  <Text><b>Game Language</b></Text>
+  <Dropdown onValueChanged="onLanguageSelect">
+  </Dropdown>
+</VerticalLayout>

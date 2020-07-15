@@ -1,0 +1,96 @@
+i18n = {}
+msg = {}
+
+local _language
+local _languages = {}
+local _listeners = {}
+
+function i18n.getLanguage()
+  return _language
+end
+
+function i18n.getDefaultLanguage()
+  return _languages[1]
+end
+
+local function findLanguageSelector(children)
+  if children then
+    for _, child in ipairs(children) do
+      if child.attributes.id == 'languageSelector' then
+        return child
+      else
+        local found = findLanguageSelector(child.children)
+        if found then
+          return found
+        end
+      end
+    end
+  end
+  return nil
+end
+
+local function setupUI()
+  local xml = UI.getXmlTable()
+  local selector = findLanguageSelector(xml)
+  if selector then
+    selector.attributes.active = true
+    local dropdown = selector.children[2]
+    dropdown.children = {}
+    for i, lang in ipairs(_languages) do
+      local option = {
+        tag = 'Option',
+        value = lang.name or lang.key
+      }
+      if lang.key == i18n.getLanguage() then
+        option.selected = true
+      end
+      dropdown.children[i] = option
+    end
+    UI.setXmlTable(xml)
+  else
+    log('no UI element with id="languageSelector" found')
+  end
+end
+
+function i18n.setupLanguages(languages, currentLanguage)
+  _languages = languages
+  i18n.setLanguage(currentLanguage)
+  setupUI()
+end
+
+local function setMsg()
+  for _, language in ipairs(_languages) do
+    if language.key == _language then
+      msg = language.msg
+      return
+    end
+  end
+end
+
+function i18n.setLanguage(language)
+  if _language ~= language then
+    _language = language
+    setMsg()
+    for _, listener in ipairs(_listeners) do
+      listener(language)
+    end
+  end
+end
+
+function i18n.registerForLanguageChange(listener)
+  table.insert(_listeners, listener)
+end
+
+function i18n.hideUI()
+  UI.hide('languageSelector')
+end
+
+function onLanguageSelect(player, option)
+  for _, language in ipairs(_languages) do
+    if language.name == option then
+      i18n.setLanguage(language.key)
+      return
+    end
+  end
+  i18n.setLanguage(option)
+end
