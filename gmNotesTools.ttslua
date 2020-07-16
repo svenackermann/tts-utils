@@ -25,37 +25,14 @@ function gmtools.parse(theObject)
   return gmtools.parseGmNotes(gmNotes)
 end
 
-function gmtools.getObjectsFromZone(zone_GUID, filter)
-  local zoneObjects = getObjectFromGUID(zone_GUID).getObjects()
+function gmtools.filter(filter)
   if filter == nil then
-    return zoneObjects
-  end
-  local filtered = {}
-  for i, zoneObject in ipairs(zoneObjects) do
-    local info = gmtools.parse(zoneObject)
-    if info ~= nil then
-      if matchesFilter(info, filter) then
-        table.insert(filtered, zoneObject)
-      end
+    return function(obj)
+      return true
     end
   end
-  return filtered
-end
-
-function gmtools.getObjectsByType(zone_GUID, type)
-  return gmtools.getObjectsFromZone(zone_GUID, {type = type})
-end
-
-function gmtools.countStackableObjectsInZone(zone_GUID, filter)
-  local objects = gmtools.getObjectsFromZone(zone_GUID, filter)
-  local count = 0
-  for _, obj in ipairs(objects) do
-    local quantity = obj.getQuantity()
-    if quantity < 0 then
-      -- not a stack
-      quantity = 1
-    end
-    count = count + quantity
+  return function(obj)
+    local info = gmtools.parse(obj)
+    return info ~= nil and matchesFilter(info, filter)
   end
-  return count
 end

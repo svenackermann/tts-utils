@@ -1,0 +1,65 @@
+sZones = {}
+
+local enterFunctions = {}
+local leaveFunctions = {}
+
+function sZones.getObjects(zone_GUID, filterFunction)
+  local zoneObjects = getObjectFromGUID(zone_GUID).getObjects()
+  if filterFunction == nil then
+    return zoneObjects
+  end
+  local filtered = {}
+  for _, zoneObject in ipairs(zoneObjects) do
+    if filterFunction(zoneObject) then
+      table.insert(filtered, zoneObject)
+    end
+  end
+  return filtered
+end
+
+function sZones.countStackableObjects(zone_GUID, filterFunction)
+  local objects = sZones.getObjects(zone_GUID, filterFunction)
+  local count = 0
+  for _, obj in ipairs(objects) do
+    local quantity = obj.getQuantity()
+    if quantity < 0 then
+      -- not a stack
+      quantity = 1
+    end
+    count = count + quantity
+  end
+  return count
+end
+
+function sZones.registerZoneEvents(zone_GUID, enterFn, leaveFn)
+  if type(enterFn) == 'function' then
+    local functions = enterFunctions[zone_GUID] or {}
+    table.insert(functions, enterFn)
+    enterFunctions[zone_GUID] = functions
+  end
+  if type(leaveFn) == 'function' then
+    local functions = leaveFunctions[zone_GUID] or {}
+    table.insert(functions, leaveFn)
+    leaveFunctions[zone_GUID] = functions
+  end
+end
+
+--global event
+function onObjectEnterScriptingZone(zone, enter_object)
+  local functions = enterFunctions[zone.getGUID()]
+  if functions then
+    for _, fn in ipairs(functions) do
+      fn(enter_object, zone)
+    end
+  end
+end
+
+--global event
+function onObjectLeaveScriptingZone(zone, leave_object)
+  local functions = leaveFunctions[zone.getGUID()]
+  if functions then
+    for _, fn in ipairs(functions) do
+      fn(leave_object, zone)
+    end
+  end
+end
