@@ -29,33 +29,9 @@ local function findLanguageSelector(children)
   return nil
 end
 
-local function setupUI()
-  local xml = UI.getXmlTable()
-  local selector = findLanguageSelector(xml)
-  if selector then
-    selector.attributes.active = true
-    local dropdown = selector.children[2]
-    dropdown.children = {}
-    for i, lang in ipairs(_languages) do
-      local option = {
-        tag = 'Option',
-        value = lang.name or lang.key
-      }
-      if lang.key == i18n.getLanguage() then
-        option.selected = true
-      end
-      dropdown.children[i] = option
-    end
-    UI.setXmlTable(xml)
-  else
-    log('no UI element with id="languageSelector" found')
-  end
-end
-
 function i18n.setupLanguages(languages, currentLanguage)
   _languages = languages
   i18n.setLanguage(currentLanguage)
-  setupUI()
 end
 
 local function setMsg()
@@ -83,6 +59,29 @@ end
 
 function i18n.hideUI()
   UI.hide('languageSelector')
+end
+
+function i18n.showUI()
+  local xml = UI.getXmlTable()
+  local selector = findLanguageSelector(xml)
+  if selector then
+    selector.attributes.active = true
+    local dropdown = selector.children[2]
+    dropdown.children = {}
+    for i, lang in ipairs(_languages) do
+      local option = {
+        tag = 'Option',
+        value = lang.name or lang.key
+      }
+      if lang.key == i18n.getLanguage() then
+        option.selected = true
+      end
+      dropdown.children[i] = option
+    end
+    UI.setXmlTable(xml)
+  else
+    log('no UI element with id="languageSelector" found')
+  end
 end
 
 function onLanguageSelect(player, option)
