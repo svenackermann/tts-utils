@@ -17,20 +17,6 @@ function sZones.getObjects(zone_GUID, filterFunction)
   return filtered
 end
 
-function sZones.countStackableObjects(zone_GUID, filterFunction)
-  local objects = sZones.getObjects(zone_GUID, filterFunction)
-  local count = 0
-  for _, obj in ipairs(objects) do
-    local quantity = obj.getQuantity()
-    if quantity < 0 then
-      -- not a stack
-      quantity = 1
-    end
-    count = count + quantity
-  end
-  return count
-end
-
 function sZones.registerZoneEvents(zone_GUID, enterFn, leaveFn)
   if type(enterFn) == 'function' then
     local functions = enterFunctions[zone_GUID] or {}

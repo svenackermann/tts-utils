@@ -1,0 +1,46 @@
+stacks = {}
+
+function stacks.count(objects)
+  local count = 0
+  for _, obj in ipairs(objects) do
+    local quantity = obj.getQuantity()
+    if quantity < 0 then
+      -- not a stack
+      quantity = 1
+    end
+    count = count + quantity
+  end
+  return count
+end
+
+function stacks.take(objects, amountToTake, callback)
+  local took = 0
+  for _, obj in ipairs(objects) do
+    local quantity = obj.getQuantity()
+    if quantity < 0 then
+      -- not a stack
+      if took >= amountToTake then
+        return took
+      end
+      took = took + 1
+      callback(obj, took)
+    else
+      -- obj is actually a stack
+      for i = 1, quantity do
+        if took >= amountToTake then
+          return took
+        end
+        took = took + 1
+        local pos = obj.getPosition()
+        pos.y = pos.y + took
+        local count = took
+        obj.takeObject({
+          callback_function = function(o) callback(o, count) end,
+          position          = pos,
+          smooth            = false
+        })
+      end
+    end
+  end
+  return took
+end
